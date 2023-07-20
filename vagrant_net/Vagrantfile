@@ -4,46 +4,62 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/focal64"
 
-  config.vm.define "host1" do |host1|
-    host1.vm.hostname = "host1"
-    host1.vm.provider "virtualbox" do |vb|
-    vb.name = "host1"
-    vb.cpus = 2
-    vb.memory = 2048
+  config.vm.define "gw" do |gw|
+    gw.vm.hostname = "gateway"
+    gw.vm.provider "virtualbox" do |vb|
+      vb.name = "gateway"
+      vb.cpus = 2
+      vb.memory = 2048
     end
-    host1.vm.network "public_network"
-    host1.vm.network "private_network", ip: "192.168.0.2"
+    gw.vm.network "public_network" #DHCP
+    gw.vm.network "private_network", ip: "192.168.123.254", virtualbox__intnet: true
 
-    host1.vm.provision "shell", inline: <<-SCRIPT
-     sudo ip route del default via 10.0.2.2 dev enp0s3
+    gw.vm.provision "shell", inline: <<-SCRIPT
+      # Add provisioning script for gateway here
     SCRIPT
   end
 
-  config.vm.define "host2" do |host2|
-    host2.vm.hostname = "host2"
-    host2.vm.provider "virtualbox" do |vb|
-    vb.name = "host2"
-    vb.cpus = 2
-    vb.memory = 2048
+  config.vm.define "nginx" do |nginx|
+    nginx.vm.hostname = "nginx-server"
+    nginx.vm.provider "virtualbox" do |vb|
+      vb.name = "nginx-server"
+      vb.cpus = 2
+      vb.memory = 2048
     end
-    host2.vm.network "private_network", ip: "192.168.0.3"
-
-    host2.vm.provision "shell", inline: <<-SCRIPT
-     sudo ip route del default via 10.0.2.2 dev enp0s3
+    nginx.vm.network "private_network", ip: "192.168.223.10", virtualbox__intnet: true
+   
+    nginx.vm.provision "shell", inline: <<-SCRIPT
+      # Add provisioning script for nginx-server here
     SCRIPT
   end
 
-  config.vm.define "host3" do |host3|
-    host3.vm.hostname = "host3"
-    host3.vm.provider "virtualbox" do |vb|
-    vb.name = "host3"
+  config.vm.define "web-serve1" do |web_server1|
+    web_server1.vm.hostname = "web-server1"
+    web_server1.vm.provider "virtualbox" do |vb|
+      vb.name = "web-server1"
+      vb.cpus = 2
+      vb.memory = 2048
+    end
+    web_server1.vm.network "private_network", ip: "192.168.223.20", virtualbox__intnet: true
+
+    web_server1.vm.provision "shell", inline: <<-SCRIPT
+      # Add provisioning script for web-server1 here
+    SCRIPT
+  end
+
+  config.vm.define "nginx_lb" do |nginx_lb|
+    nginx_lb.vm.hostname = "nginx-lb"
+    nginx_lb.vm.provider "virtualbox" do |vb|
+    vb.name = "nginx-lb"
     vb.cpus = 2
     vb.memory = 2048
     end
-    host3.vm.network "private_network", ip: "192.168.0.4"
-
-    host3.vm.provision "shell", inline: <<-SCRIPT
-     sudo ip route del default via 10.0.2.2 dev enp0s3
+    #ubuntu 20.04의 인터페이스명-> enp0s8
+    nginx_lb.vm.network "private_network", ip: "192.168.123.10", virtualbox__intnet: true
+    #ubuntu 20.04의 인터페이스명-> enp0s9
+    nginx_lb.vm.network "private_network", ip: "192.168.223.1", virtualbox__intnet: true
+    nginx_lb.vm.provision "shell", inline: <<-SCRIPT
+      # Add provisioning script for web-server2 here
     SCRIPT
   end
 end
