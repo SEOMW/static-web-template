@@ -1,0 +1,2 @@
+kubeadm join kube-controller:6443 --token u28aij.818qv23wtqubt2ix \
+        --discovery-token-ca-cert-hash sha256:0fa3a8e33d93a471413bb8cc559ecd5c0a4e66744a8467bb17696a3202136427
